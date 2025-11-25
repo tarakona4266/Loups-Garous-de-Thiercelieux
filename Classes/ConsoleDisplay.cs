@@ -40,44 +40,13 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
             int wordWidht;
             int comp;
 
-            string sep = "";
-            for (int i = 0; i < nbColumn; i++)
-            {
-                sep += "+------------";
-            }
-            sep += "+";
-
-            // --- NAME line ---
-            Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.WriteLine(sep);
-            Console.Write("|");
             foreach (Player player in Players)
             {
-                wordWidht = player.name.Length;
-                comp = columnWidth - wordWidht;
-                Console.ForegroundColor = ConsoleColor.White;
-                Console.Write(player.name);
-                Console.ForegroundColor = ConsoleColor.DarkGray;
-                for (int i = 0; i < comp; i++) { Console.Write(" "); }
-                Console.Write("|");
+                Console.Write($" [{player.indexInPlayerList}] ");
+                if (player.indexInPlayerList < 10) { Console.Write(" "); }
+                Console.Write($"- {player.name}");
+                Console.WriteLine();
             }
-            Console.WriteLine();
-            Console.WriteLine(sep);
-
-            // --- INDEX line ---
-            Console.Write("|");
-            for (int i = 0;i < Players.Count; i++)
-            {
-                Console.ForegroundColor = ConsoleColor.White;
-                Console.Write($"ID : {i}");
-                Console.ForegroundColor = ConsoleColor.DarkGray;
-                if (i < 10) { comp = 6; }
-                else { comp = 5; }
-                for (int j = 0; j < comp; j++) { Console.Write(" "); }
-                Console.Write("|");
-            }
-            Console.WriteLine();
-            Console.WriteLine(sep);
         }
     }
 }

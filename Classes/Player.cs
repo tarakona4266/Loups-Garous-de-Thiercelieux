@@ -14,7 +14,7 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
         public bool isAlive = true;
         public string name;
         public Role role;
-        private int indexInPlayerList;
+        public int indexInPlayerList;
         public Player(string name, bool isHumain, int index)
         {
             this.isHumain = isHumain;
