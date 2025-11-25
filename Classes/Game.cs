@@ -37,14 +37,14 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
             // --- Players creation ---
             bool valid = false;
             Console.WriteLine("What is your name ?");
-            string pattern = @"(\w){3,12}";
+            string pattern = @"^(\w){3,12}$";
             while (!valid)
             {
                 string? answer = Console.ReadLine();
                 if (answer != null && Regex.IsMatch(answer, pattern, RegexOptions.CultureInvariant))
                 {
                     ConsoleDisplay.ClearLine(2);
-                    allPlayers.Add(new Player(answer, true));
+                    allPlayers.Add(new Player(answer, true, 0));
                     valid = true;
                 }
                 else
@@ -58,7 +58,7 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
             
             for (int i = 0; i < nbPlayer - 1; i++)  // AI players
             {
-                allPlayers.Add(new Player(Enum.GetName(typeof(Name), i) , false));
+                allPlayers.Add(new Player(Enum.GetName(typeof(Name), i) , false, i+1));
             }
 
             // --- Assign roles ---
@@ -88,10 +88,12 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                 throw new Exception("Classic game not implemented yet !");
             }
 
-            foreach (Player player in allPlayers) { player.PrintRole(); }   // for debug
-
             // --- Start game ---
 
+            // TEST
+            foreach (Player player in allPlayers) { player.PrintRole(); }
+            Console.WriteLine();
+            foreach (Player player in allPlayers) { player.Vote(allPlayers); }
         }
 
         private static void Wait(int time = 1000)

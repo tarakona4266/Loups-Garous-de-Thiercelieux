@@ -14,10 +14,12 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
         public bool isAlive = true;
         public string name;
         public Role role;
-        public Player(string name, bool isHumain)
+        private int indexInPlayerList;
+        public Player(string name, bool isHumain, int index)
         {
             this.isHumain = isHumain;
             this.name = name;
+            indexInPlayerList = index;
         }
 
         public void PrintRole()
@@ -58,6 +60,25 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
             }
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine();
+        }
+
+        public int Vote(List<Player> players)
+        {
+            int choice;
+            if (isHumain)
+            {
+                Console.WriteLine("Choose someone to sacrifice :");
+                string? answer = Console.ReadLine();
+                choice = 0; // temp
+            }
+            else
+            {
+                do
+                { choice = GlobalRandom.GetRandom(players.Count);
+                } while (choice == indexInPlayerList);
+            }
+            Console.WriteLine($"{name} (index : {indexInPlayerList}) has voted {choice}");
+            return choice;
         }
     }
 }
