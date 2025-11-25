@@ -32,7 +32,7 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
             Console.SetCursorPosition(0, lineNb);
 
         }
-        public static void PrintPlayers (List<Player> Players)
+        public static void PrintPlayers(List<Player> Players)
         {
             int nbColumn = Players.Count;
 
@@ -47,6 +47,13 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                 Console.Write($"- {player.name}");
                 Console.WriteLine();
             }
+        }
+        public static void Narrrate(string text)
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write("[Narrator] ");
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine(text);
         }
     }
 }

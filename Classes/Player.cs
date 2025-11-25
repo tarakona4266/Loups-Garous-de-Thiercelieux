@@ -24,52 +24,74 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
 
         public void PrintRole()
         {
-            Console.Write(name + " is a ");
             switch (role)
             {
                 case Role.Werewolf:
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.Write(role);
                     break;
                 case Role.Cupido:
                     Console.ForegroundColor = ConsoleColor.Magenta;
-                    Console.Write(role);
                     break;
                 case Role.FortuneTeller:
                     Console.ForegroundColor = ConsoleColor.Blue;
-                    Console.Write(role);
                     break;
                 case Role.Hunter:
                     Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.Write(role);
                     break;
                 case Role.Witch:
                     Console.ForegroundColor = ConsoleColor.Blue;
-                    Console.Write(role);
                     break;
                 case Role.LittleGirl:
                     Console.ForegroundColor = ConsoleColor.Cyan;
-                    Console.Write(role);
                     break;
                 case Role.Sheriff:
                     Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.Write(role);
                     break;
-                default: Console.Write(role);
+                default: Console.ForegroundColor = ConsoleColor.White;
                     break;
             }
+            Console.Write(role);
             Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine();
         }
 
-        public int Vote(List<Player> players)
+        public int TownVote(List<Player> players)
         {
             int choice;
             if (isHumain)
             {
                 Console.WriteLine("Choose someone to sacrifice :");
-                string? answer = Console.ReadLine();
-                choice = 0; // temp
+                while (true)
+                {
+                    string? answer = Console.ReadLine();
+                    if (int.TryParse(answer, out choice))
+                    {
+                        if (choice >= 0 && choice < players.Count)
+                        {
+                            if (choice != indexInPlayerList)
+                            {
+                                ConsoleDisplay.ClearLine(2);
+                                break;
+                            }
+                            else
+                            {
+                                ConsoleDisplay.ClearLine(2);
+                                Console.WriteLine("Invalid input : you cannot choose yourself");
+                            }
+                        }
+                        else
+                        {
+                            ConsoleDisplay.ClearLine(2);
+                            Console.WriteLine($"Invalid input : pLease enter a number between 0 and {players.Count}");
+                        }
+                    }
+                    else
+                    {
+                        ConsoleDisplay.ClearLine(2);
+                        Console.WriteLine("Invalid input : pLease enter a number");
+                    }
+                }
+                Console.WriteLine($"{name} has voted {choice}");
+                return choice;
             }
             else
             {
@@ -77,7 +99,7 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                 { choice = GlobalRandom.GetRandom(players.Count);
                 } while (choice == indexInPlayerList);
             }
-            Console.WriteLine($"{name} (index : {indexInPlayerList}) has voted {choice}");
+            Console.WriteLine($"{name} has voted {choice}");
             return choice;
         }
     }

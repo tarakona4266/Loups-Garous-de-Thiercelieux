@@ -10,6 +10,7 @@ namespace Loups_Garous_de_Thiercelieux_console
             int nbPlayer;
             bool simpleGame;
 
+            Console.ForegroundColor = ConsoleColor.White;
             ConsoleDisplay.MainTitle();
             Console.WriteLine("Press [ENTER] to start.");
             Console.ReadLine();

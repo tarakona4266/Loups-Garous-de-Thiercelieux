@@ -54,7 +54,7 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                     continue;
                 }
             }
-            Console.WriteLine($"Your name is {allPlayers[0].name}.\n");
+            Console.WriteLine($"Your name is {allPlayers[0].name}.");
             
             for (int i = 0; i < nbPlayer - 1; i++)  // AI players
             {
@@ -88,15 +88,17 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                 throw new Exception("Classic game not implemented yet !");
             }
 
-            // --- Start game ---
+            // --- Game start ---
 
-            // TEST
-            foreach (Player player in allPlayers) { player.PrintRole(); }
-            Console.WriteLine();
-            ConsoleDisplay.PrintPlayers(allPlayers);
+            Console.Write("You are a ");
+            allPlayers[0].PrintRole();
+            Console.WriteLine(" !\n");
+            Wait(2000);
+            ConsoleDisplay.Narrrate("The night is aproaching. Everyone goes to sleep.\n");
+            Wait(2000);
         }
 
-        private static void Wait(int time = 1000)
+        private static void Wait(int time = 1000)   // meant to be replaced with something more elegant
         {
             Thread.Sleep(time);
         }
