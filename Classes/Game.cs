@@ -87,6 +87,18 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
             {
                 throw new Exception("Classic game not implemented yet !");
             }
+            // get special players
+            foreach (Player player in allPlayers)
+            {
+                if (player.role == Role.Werewolf)
+                {
+                    werewolves.Add(player);
+                }
+                if (player.role == Role.FortuneTeller)
+                {
+                    FortuneTeller = player;
+                }
+            }
 
             // --- Game start ---
 
@@ -96,6 +108,10 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
             Wait(2000);
             ConsoleDisplay.Narrrate("The night is aproaching. Everyone goes to sleep.\n");
             Wait(2000);
+            Wait(2000);
+            ConsoleDisplay.Narrrate("The werewolves are awakening.");
+            Wait(3000);
+
         }
 
         private static void Wait(int time = 1000)   // meant to be replaced with something more elegant
