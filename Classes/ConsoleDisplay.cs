@@ -16,6 +16,7 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
             Console.WriteLine(" | The Werewolves of Millers Hollow |");
             Console.WriteLine(" +----------------------------------+\n");
         }
+
         public static void ClearLine(int nbLines = 1)
         {
             int lineNb = Console.CursorTop;
@@ -32,6 +33,7 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
             Console.SetCursorPosition(0, lineNb);
 
         }
+
         public static void PrintPlayers(List<Player> Players)
         {
             int nbColumn = Players.Count;
@@ -42,18 +44,25 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
 
             foreach (Player player in Players)
             {
+                if (player.isAlive) { Console.ForegroundColor = ConsoleColor.White; }
+                else { Console.ForegroundColor = ConsoleColor.Gray; }
+
+                if (player.indexInPlayerList < 10) { Console.Write(" "); } // for alignment
                 Console.Write($" [{player.indexInPlayerList}] ");
-                if (player.indexInPlayerList < 10) { Console.Write(" "); }
                 Console.Write($"- {player.name}");
+                if (!player.isAlive) { Console.Write($" - {player.PrintRole}"); }
                 Console.WriteLine();
             }
+            Console.ForegroundColor = ConsoleColor.White;
         }
+
         public static void Narrrate(string text)
         {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.Write("[Narrator] ");
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine(text);
+            Thread.Sleep(1000); // ugly but will do the job for now
         }
     }
 }

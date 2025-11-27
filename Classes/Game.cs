@@ -82,14 +82,16 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
 
             #endregion
 
+            #region GAME START
+
             // --- Game start ---
 
             Console.Write("You are a ");
             allPlayers[0].PrintRole();
             Console.WriteLine(" !\n");
 
-            ConsoleDisplay.Narrrate("The night is approaching. Everyone goes to sleep.\n");
-            ConsoleDisplay.Narrrate("The werewolves are awakening.");
+            ConsoleDisplay.Narrrate("The night is approaching. Everyone goes to sleep.");
+            ConsoleDisplay.Narrrate("The Fortune Teller awakes.\n");
 
             // fortune teller
             if (allPlayers[0].role == Role.FortuneTeller)
@@ -109,6 +111,8 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                     Console.WriteLine();
                 }
             }
+
+            #endregion
 
             // werewolves vote
             ConsoleDisplay.Narrrate("The werewolves are awakening.");
