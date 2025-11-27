@@ -67,7 +67,7 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                     string? answer = Console.ReadLine();
                     if (int.TryParse(answer, out choice))
                     {
-                        if (choice > 0 && choice < players.Count)
+                        if (choice > 0 && choice < players.Count && players[choice].isAlive)
                         {
                             ConsoleDisplay.ClearLine(2);
                             break;
@@ -77,10 +77,15 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                             ConsoleDisplay.ClearLine(2);
                             Console.WriteLine("Invalid input : you cannot choose yourself");
                         }
+                        else if (!players[choice].isAlive)
+                        {
+                            ConsoleDisplay.ClearLine(2);
+                            Console.WriteLine($"Invalid input : you cannot vote for a dead person");
+                        }
                         else
                         {
                             ConsoleDisplay.ClearLine(2);
-                            Console.WriteLine($"Invalid input : pLease enter a number between 0 and {players.Count}");
+                            Console.WriteLine($"Invalid input : pLease enter a number between 0 and {players.Count - 1}");
                         }
                     }
                     else
@@ -111,7 +116,7 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                     string? answer = Console.ReadLine();
                     if (int.TryParse(answer, out choice))
                     {
-                        if (playersIndex.Contains(choice)) // no check for choosing self, might add one later
+                        if (playersIndex.Contains(choice)) // no check for choosing self, might add it later
                         {
                             ConsoleDisplay.ClearLine(2);
                             break;
@@ -138,13 +143,11 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
             }
         }
 
-
         public (bool displayResult, int index) SeeCard(List<Player> players)
         {
             int choice;
             if (isHumain)
             {
-                Console.WriteLine("Choose someone's card to see :");
                 while (true)
                 {
                     string? answer = Console.ReadLine();

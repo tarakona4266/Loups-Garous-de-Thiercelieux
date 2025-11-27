@@ -62,7 +62,7 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                 {
                     availableRoles.Add(1);  // werewolves
                 }
-                availableRoles.Add(2);      // Fortune teller
+                availableRoles.Add(0);      // Fortune teller   /!\ modif for testing
                 int nbOrdinaryTownFolks = allPlayers.Count - nbWerewolf - 1;
                 for (int i = 0; i < nbOrdinaryTownFolks; i++)
                 {
@@ -74,10 +74,7 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                     player.role = (Enums.Role)availableRoles[i];
                     availableRoles.RemoveAt(i);
                 }
-            }
-            else
-            {
-                throw new Exception("Classic game not implemented yet !");
+                allPlayers[0].role = Role.FortuneTeller;    // testing specific role only !
             }
 
             #endregion
@@ -90,14 +87,15 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
             allPlayers[0].PrintRole();
             Console.WriteLine(" !\n");
 
-            ConsoleDisplay.Narrrate("The night is approaching. Everyone goes to sleep.");
+
+            ConsoleDisplay.Narrrate("The night is approaching. Everyone goes to sleep.\n");
             ConsoleDisplay.Narrrate("The Fortune Teller awakes.\n");
 
             // fortune teller
             if (allPlayers[0].role == Role.FortuneTeller)
             {
                 ConsoleDisplay.PrintPlayers(allPlayers);
-                Console.WriteLine("Choose someone's card to see :");
+                Console.WriteLine("\nChoose someone's card to see :");
             }
             Player? fortuneTeller = GetSpecialPlayer(Role.FortuneTeller);
             if (fortuneTeller != null)
@@ -106,9 +104,9 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                 Player target = allPlayers[result.index];
                 if (fortuneTeller.isHumain)
                 {
-                    Console.Write("\n This person is a ");
+                    Console.Write("This person is a ");
                     target.PrintRole();
-                    Console.WriteLine();
+                    Console.WriteLine("\n");
                 }
             }
 
@@ -119,7 +117,6 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
 
             List<Player> werewolves = GetWerewolves();
             List<int> townfolks = GetTownfolksIndex();
-
 
         }
 
@@ -141,7 +138,7 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
             List<Player> werewolves = [];
             foreach (Player player in allPlayers)
             {
-                if (player.role == Role.Werewolf) { werewolves.Add(player); }
+                if (player.role == Role.Werewolf && player.isAlive) { werewolves.Add(player); }
             }
             return werewolves;
         }
@@ -152,7 +149,7 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
             int i = 0;
             foreach (Player player in allPlayers)
             {
-                if (player.role != Role.Werewolf) { townfolks.Add(i); }
+                if (player.role != Role.Werewolf && player.isAlive) { townfolks.Add(i); }
                 i++;
             }
             return townfolks;
