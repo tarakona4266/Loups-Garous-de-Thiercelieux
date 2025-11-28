@@ -19,6 +19,13 @@ namespace Loups_Garous_de_Thiercelieux_console.Enums
         Sidonie,
         Philomène,
         Léonard,
-        Michel
+        Michel,
+        Ursule,
+        Alphonse,
+        Eglantine,
+        Théodule,
+        Sylvandre,
+        Balthazar,
+        Léontine
     }
 }

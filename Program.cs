@@ -1,5 +1,6 @@
 ﻿using Loups_Garous_de_Thiercelieux_console.Classes;
 using Loups_Garous_de_Thiercelieux_console.Enums;
+using System;
 
 namespace Loups_Garous_de_Thiercelieux_console
 {
@@ -9,6 +10,7 @@ namespace Loups_Garous_de_Thiercelieux_console
         {
             int nbPlayer;
             bool simpleGame;
+            int maxPlayerNb = 20;
 
             Console.ForegroundColor = ConsoleColor.White;
             ConsoleDisplay.MainTitle();
@@ -17,13 +19,13 @@ namespace Loups_Garous_de_Thiercelieux_console
             ConsoleDisplay.ClearLine(2);
 
             // --- Game setup ---
-            Console.WriteLine("Choose player number (8 to 13) :");
+            Console.WriteLine($"Choose player number (8 to {maxPlayerNb}) :");
             while (true)
             {
                 string? answer = Console.ReadLine();
                 if (int.TryParse(answer, out int nb))
                 {
-                    if (nb > 7 && nb < 14)
+                    if (nb > 7 && nb <= maxPlayerNb)
                     {
                         nbPlayer = nb;
                         ConsoleDisplay.ClearLine(2);
@@ -32,7 +34,7 @@ namespace Loups_Garous_de_Thiercelieux_console
                     else
                     {
                         ConsoleDisplay.ClearLine(2);
-                        Console.WriteLine("Invalid input : player number must be in between 8 and 13.");
+                        Console.WriteLine($"Invalid input : player number must be in between 8 and {maxPlayerNb}.");
                     }
                 }
                 else
