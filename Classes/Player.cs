@@ -14,6 +14,7 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
     {
         public bool isHumain;
         public bool isAlive = true;
+        public bool isDiscovered = false;
         public string name;
         public Role role;
         public int indexInPlayerList;
@@ -69,8 +70,16 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                     {
                         if (choice > 0 && choice < players.Count && players[choice].isAlive)
                         {
-                            ConsoleDisplay.ClearLine(2);
-                            break;
+                            if (role == Role.Werewolf && players[choice].role == Role.Werewolf)
+                            {
+                                ConsoleDisplay.ClearLine(2);
+                                Console.WriteLine("Invalid input : you cannot choose a fellow werewolf");
+                            }
+                            else
+                            {
+                                ConsoleDisplay.ClearLine(2);
+                                break;
+                            }
                         }
                         else if (choice == 0)
                         {
@@ -98,15 +107,44 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
             }
             else // AI random vote
             {
-                do
-                { choice = GlobalRandom.GetRandom(players.Count);
-                } while (choice == indexInPlayerList);
+                if (role != Role.Werewolf)
+                {
+                    if (preferedChoice > -1)
+                    {
+                        if (!players[preferedChoice].isAlive)
+                        {
+                            choice = preferedChoice;
+                        }
+                        else // reset preferedChoice & random vote
+                        {
+                            preferedChoice = -1;
+                            do
+                            {
+                                choice = GlobalRandom.GetRandom(players.Count);
+                            } while (choice == indexInPlayerList);
+                        }
+                    }
+                    else
+                    {
+                        do
+                        {
+                            choice = GlobalRandom.GetRandom(players.Count);
+                        } while (choice == indexInPlayerList);
+                    }
+                }
+                else // if werewolf, choose an non-werewolf player to kill
+                {
+                    do
+                    {
+                        choice = GlobalRandom.GetRandom(players.Count);
+                    } while (players[choice].role != Role.Werewolf);
+                }
             }
-            Console.WriteLine($"{name} has voted {choice}");
+            //Console.WriteLine($"{name} has voted {choice}");
             return choice;
         }
 
-        public void VoteFromIndex(List<int> playersIndex)
+        public int VoteFromIndex(List<int> playersIndex)
         {
             int choice;
             if (isHumain)
@@ -116,7 +154,7 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                     string? answer = Console.ReadLine();
                     if (int.TryParse(answer, out choice))
                     {
-                        if (playersIndex.Contains(choice)) // no check for choosing self, might add it later
+                        if (playersIndex.Contains(choice))
                         {
                             ConsoleDisplay.ClearLine(2);
                             break;
@@ -136,11 +174,10 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
             }
             else // AI random vote
             {
-                do
-                {
-                    choice = playersIndex[GlobalRandom.GetRandom(playersIndex.Count)];
-                } while (choice != indexInPlayerList);
+                choice = playersIndex[GlobalRandom.GetRandom(playersIndex.Count)];
             }
+            Console.WriteLine($"{name} as voted {choice}.");
+            return choice;
         }
 
         public (bool displayResult, int index) SeeCard(List<Player> players)
@@ -180,7 +217,10 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                 }
                 return (true, choice);
             }
-            else { return (false, 0); }
+            else {
+
+                return (false, 0);
+            }
         }
     }
 }

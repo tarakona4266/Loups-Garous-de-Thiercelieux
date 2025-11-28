@@ -14,6 +14,7 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
     {
         private int nbPlayer;
         private bool simpleGame;
+        private bool gameEnd;
         private List<Player> allPlayers = [];
 
         public Game(int nbPlayer, bool simpleGame = false)
@@ -57,12 +58,12 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
             if (simpleGame)
             {
                 List<int> availableRoles = [];
-                int nbWerewolf = (int)Math.Round(allPlayers.Count * 0.2f);
+                int nbWerewolf = (int)Math.Round(allPlayers.Count * 0.2f);  // 20% of werewolves
                 for (int i = 0; i < nbWerewolf; i++)
                 {
                     availableRoles.Add(1);  // werewolves
                 }
-                availableRoles.Add(0);      // Fortune teller   /!\ modif for testing
+                availableRoles.Add(2);      // Fortune teller
                 int nbOrdinaryTownFolks = allPlayers.Count - nbWerewolf - 1;
                 for (int i = 0; i < nbOrdinaryTownFolks; i++)
                 {
@@ -71,27 +72,119 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                 foreach (Player player in allPlayers)
                 {
                     int i = GlobalRandom.GetRandom(availableRoles.Count);
-                    player.role = (Enums.Role)availableRoles[i];
+                    player.role = (Role)availableRoles[i];
                     availableRoles.RemoveAt(i);
                 }
-                allPlayers[0].role = Role.FortuneTeller;    // testing specific role only !
+            }
+            if (allPlayers[0].role == Role.Werewolf)
+            {
+                foreach (Player player in allPlayers)
+                {
+                    if (player.role == Role.Werewolf)
+                    {
+                        player.isDiscovered = true;
+                    }
+                }
             }
 
             #endregion
 
-            #region GAME START
+            #region GAME LOOP
 
             // --- Game start ---
 
             Console.Write("You are a ");
             allPlayers[0].PrintRole();
             Console.WriteLine(" !\n");
+            Wait(1000);
 
+            // add Console.Clear here
 
             ConsoleDisplay.Narrrate("The night is approaching. Everyone goes to sleep.\n");
-            ConsoleDisplay.Narrrate("The Fortune Teller awakes.\n");
 
-            // fortune teller
+
+                // fortune teller
+            ConsoleDisplay.Narrrate("The Fortune Teller awakes.\n");
+            InvokeFortuneTeller();
+            ConsoleDisplay.Narrrate("The Fortune Teller goes back to sleep.\n");
+
+
+                // werewolves vote
+            ConsoleDisplay.Narrrate("The werewolves are awakening.\n");
+
+            List<Player> werewolves = GetWerewolves();
+            List<int> townfolksIndex = GetTownfolksIndex();
+            List<Player> townfolks = GetTownfolks();
+
+            if (allPlayers[0].role == Role.Werewolf)
+            {
+                ConsoleDisplay.PrintPlayers(allPlayers);
+                Console.WriteLine("Choose someone to murder :");
+            }
+            foreach (Player werewolf in werewolves)
+            {
+                werewolf.VoteFromIndex(townfolksIndex);
+            }
+
+            ConsoleDisplay.Narrrate("The werewolves go back to sleep.\n");
+
+
+                // town vote
+            ConsoleDisplay.Narrrate("The sun rises. The town wakes up.\n");
+
+            ConsoleDisplay.PrintPlayers(allPlayers);
+
+            #endregion
+        }
+
+        #region METHODS
+        private Player? GetSpecialPlayer(Role role)
+        {
+            Player targetPlayer = null;
+            foreach (Player player in allPlayers)
+            {
+                if (player.role == role)
+                {
+                    targetPlayer = player;
+                }
+            }
+            return targetPlayer;
+        }
+
+        private List<Player> GetWerewolves()
+        {
+            List<Player> werewolves = [];
+            foreach (Player player in allPlayers)
+            {
+                if (player.role == Role.Werewolf && player.isAlive) { werewolves.Add(player); }
+            }
+            return werewolves;
+        }
+
+        private List<Player> GetTownfolks()
+        {
+            List<Player> folks = [];
+            foreach (Player player in allPlayers)
+            {
+                if (player.role != Role.Werewolf && player.isAlive) { folks.Add(player); }
+            }
+            return folks;
+        }
+
+        private List<int> GetTownfolksIndex()
+        {
+            List<int> townfolks = [];
+            int i = 0;
+            foreach (Player player in allPlayers)
+            {
+                if (player.role != Role.Werewolf && player.isAlive) { townfolks.Add(i); }
+                i++;
+            }
+            return townfolks;
+        }
+
+        private void InvokeFortuneTeller()
+        {
             if (allPlayers[0].role == Role.FortuneTeller)
             {
                 ConsoleDisplay.PrintPlayers(allPlayers);
@@ -107,57 +200,20 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                     Console.Write("This person is a ");
                     target.PrintRole();
                     Console.WriteLine("\n");
+                    target.isDiscovered = true;
                 }
-            }
-
-            #endregion
-
-            // werewolves vote
-            ConsoleDisplay.Narrrate("The werewolves are awakening.");
-
-            List<Player> werewolves = GetWerewolves();
-            List<int> townfolks = GetTownfolksIndex();
-
-        }
-
-
-        private Player? GetSpecialPlayer(Role role)
-        {
-            Player targetPlayer = null;
-            foreach (Player player in allPlayers)
-            {
-                if (player.role == role)
+                else
                 {
-                    targetPlayer = player;
+
                 }
             }
-            return targetPlayer;
-        }
-        private List<Player> GetWerewolves()
-        {
-            List<Player> werewolves = [];
-            foreach (Player player in allPlayers)
-            {
-                if (player.role == Role.Werewolf && player.isAlive) { werewolves.Add(player); }
-            }
-            return werewolves;
-        }
-
-        private List<int> GetTownfolksIndex()
-        {
-            List<int> townfolks = [];
-            int i = 0;
-            foreach (Player player in allPlayers)
-            {
-                if (player.role != Role.Werewolf && player.isAlive) { townfolks.Add(i); }
-                i++;
-            }
-            return townfolks;
         }
 
         private void Wait(int time = 1000)   // meant to be replaced with something more elegant
         {
             Thread.Sleep(time);
         }
+        #endregion
     }
 }
+

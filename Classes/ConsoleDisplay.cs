@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Loups_Garous_de_Thiercelieux_console.Classes
 {
-    public static class ConsoleDisplay
+    public static class ConsoleDisplay // this class exist so it will be easier to switch to a graphical interface later
     {
         public static void MainTitle()
         {
@@ -34,7 +34,7 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
 
         }
 
-        public static void PrintPlayers(List<Player> Players)
+        public static void PrintPlayers(List<Player> Players, bool debug = false)
         {
             int nbColumn = Players.Count;
 
@@ -50,7 +50,11 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                 if (player.indexInPlayerList < 10) { Console.Write(" "); } // for alignment
                 Console.Write($" [{player.indexInPlayerList}] ");
                 Console.Write($"- {player.name}");
-                if (!player.isAlive) { Console.Write($" - {player.PrintRole}"); }
+                if (!player.isAlive || debug || player.isDiscovered)
+                {
+                    Console.Write(" : ");
+                    player.PrintRole();
+                }
                 Console.WriteLine();
             }
             Console.ForegroundColor = ConsoleColor.White;
