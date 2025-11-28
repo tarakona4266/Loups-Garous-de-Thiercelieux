@@ -114,8 +114,6 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
             ConsoleDisplay.Narrrate("The werewolves are awakening.\n");
 
             List<Player> werewolves = GetWerewolves();
-            List<int> townfolksIndex = GetTownfolksIndex();
-            List<Player> townfolks = GetTownfolks();
 
             if (allPlayers[0].role == Role.Werewolf)
             {
@@ -186,14 +184,15 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
 
         private void InvokeFortuneTeller()
         {
-            if (allPlayers[0].role == Role.FortuneTeller)
-            {
-                ConsoleDisplay.PrintPlayers(allPlayers);
-                Console.WriteLine("\nChoose someone's card to see :");
-            }
             Player? fortuneTeller = GetSpecialPlayer(Role.FortuneTeller);
             if (fortuneTeller != null)
             {
+                if (fortuneTeller.isHumain)
+                {
+                    ConsoleDisplay.PrintPlayers(allPlayers);
+                    Console.WriteLine("\nChoose someone's card to see :");
+                }
+
                 var result = fortuneTeller.SeeCard(allPlayers);
                 Player target = allPlayers[result.index];
                 if (fortuneTeller.isHumain)
@@ -202,10 +201,6 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                     target.PrintRole();
                     Console.WriteLine("\n");
                     target.isDiscovered = true;
-                }
-                else
-                {
-                    // if fortune teller is AI
                 }
             }
         }

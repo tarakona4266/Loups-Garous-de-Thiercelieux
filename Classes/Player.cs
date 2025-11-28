@@ -121,7 +121,7 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                             do
                             {
                                 choice = GlobalRandom.GetRandom(players.Count);
-                            } while (choice == indexInPlayerList);
+                            } while (choice == indexInPlayerList || !players[choice].isAlive);
                         }
                     }
                     else
@@ -129,7 +129,7 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                         do
                         {
                             choice = GlobalRandom.GetRandom(players.Count);
-                        } while (choice == indexInPlayerList);
+                        } while (choice == indexInPlayerList || !players[choice].isAlive);
                     }
                 }
                 else // if werewolf, choose an non-werewolf player to kill
@@ -137,11 +137,12 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                     do
                     {
                         choice = GlobalRandom.GetRandom(players.Count);
-                    } while (players[choice].role == Role.Werewolf);
-                    Console.WriteLine($"The {role} {name} has voted for {players[choice].role} {players[choice].name} by voting {choice}.");
+                    } while (players[choice].role == Role.Werewolf || !players[choice].isAlive);
                 }
             }
-            //Console.WriteLine($"{name} has voted {choice}");
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.WriteLine($"The {role} {name} has voted for {players[choice].role} {players[choice].name} by voting {choice}.");
+            Console.ForegroundColor = ConsoleColor.White;
             return choice;
         }
 
@@ -218,9 +219,20 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                 }
                 return (true, choice);
             }
-            else {
-
-                return (false, 0);
+            else
+            {
+                do
+                {
+                    choice = GlobalRandom.GetRandom(players.Count);
+                } while (choice == indexInPlayerList || !players[choice].isAlive);
+                if (players[choice].role == Role.Werewolf)
+                {
+                    preferedChoice = choice;
+                }
+                Console.ForegroundColor = ConsoleColor.DarkGray;
+                Console.WriteLine($"The {role} {name} as discovered that {players[choice].name} is a {players[choice].role}.\n");
+                Console.ForegroundColor = ConsoleColor.White;
+                return (false, choice);
             }
         }
     }
