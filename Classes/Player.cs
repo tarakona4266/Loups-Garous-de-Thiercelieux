@@ -86,15 +86,15 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                             ConsoleDisplay.ClearLine(2);
                             Console.WriteLine("Invalid input : you cannot choose yourself");
                         }
-                        else if (!players[choice].isAlive)
+                        else if (choice >= players.Count)
                         {
                             ConsoleDisplay.ClearLine(2);
-                            Console.WriteLine($"Invalid input : you cannot vote for a dead person");
+                            Console.WriteLine($"Invalid input : pLease enter a number between 0 and {players.Count - 1}");
                         }
                         else
                         {
                             ConsoleDisplay.ClearLine(2);
-                            Console.WriteLine($"Invalid input : pLease enter a number between 0 and {players.Count - 1}");
+                            Console.WriteLine($"Invalid input : you cannot vote for a dead person");
                         }
                     }
                     else
@@ -137,7 +137,8 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                     do
                     {
                         choice = GlobalRandom.GetRandom(players.Count);
-                    } while (players[choice].role != Role.Werewolf);
+                    } while (players[choice].role == Role.Werewolf);
+                    Console.WriteLine($"The {role} {name} has voted for {players[choice].role} {players[choice].name} by voting {choice}.");
                 }
             }
             //Console.WriteLine($"{name} has voted {choice}");
@@ -206,7 +207,7 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                         else
                         {
                             ConsoleDisplay.ClearLine(2);
-                            Console.WriteLine($"Invalid input : pLease enter a number between 0 and {players.Count}");
+                            Console.WriteLine($"Invalid input : pLease enter a number between 0 and {players.Count - 1}");
                         }
                     }
                     else

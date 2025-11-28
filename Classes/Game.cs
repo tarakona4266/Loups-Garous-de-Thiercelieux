@@ -38,6 +38,7 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                 {
                     ConsoleDisplay.ClearLine(2);
                     allPlayers.Add(new Player(answer, true, 0));
+                    allPlayers[0].isDiscovered = true; // allow to print role
                     valid = true;
                 }
                 else
@@ -123,7 +124,7 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
             }
             foreach (Player werewolf in werewolves)
             {
-                werewolf.VoteFromIndex(townfolksIndex);
+                werewolf.Vote(allPlayers);
             }
 
             ConsoleDisplay.Narrrate("The werewolves go back to sleep.\n");
@@ -204,7 +205,7 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                 }
                 else
                 {
-
+                    // if fortune teller is AI
                 }
             }
         }
