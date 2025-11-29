@@ -1,4 +1,5 @@
-﻿using Loups_Garous_de_Thiercelieux_console.Enums;
+﻿using Loups_Garoups_de_Thiercelieux_console.Classes;
+using Loups_Garous_de_Thiercelieux_console.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -49,10 +50,10 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                 }
             }
             Console.WriteLine($"Your name is {allPlayers[0].name}.");
-            
+
             for (int i = 0; i < nbPlayer - 1; i++)  // AI players
             {
-                allPlayers.Add(new Player(Enum.GetName(typeof(Name), i) , false, i+1));
+                allPlayers.Add(new Player(Enum.GetName(typeof(Name), i), false, i + 1));
             }
 
             // --- Assign roles ---
@@ -104,13 +105,14 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
             ConsoleDisplay.Narrrate("The night is approaching. Everyone goes to sleep.\n");
 
 
-                // fortune teller
+            // fortune teller
             ConsoleDisplay.Narrrate("The Fortune Teller awakes.\n");
             InvokeFortuneTeller();
             ConsoleDisplay.Narrrate("The Fortune Teller goes back to sleep.\n");
             ConsoleDisplay.Next();
 
-                // werewolves vote
+
+            // werewolves vote
             ConsoleDisplay.Narrrate("The werewolves are awakening.\n");
 
             List<Player> werewolves = GetWerewolves();
@@ -118,15 +120,55 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
             if (allPlayers[0].role == Role.Werewolf)
             {
                 ConsoleDisplay.PrintPlayers(allPlayers);
-                Console.WriteLine("Choose someone to murder :");
+                Console.WriteLine("Choose someone to devour :");
             }
+
+            List<int> votes = [];
             foreach (Player werewolf in werewolves)
             {
-                werewolf.Vote(allPlayers);
+                votes.Add(werewolf.Vote(allPlayers));
             }
-            Console.WriteLine();
+            Console.WriteLine(); // only for pretty debug display
+
+            List<VoteData> voteResults = GetWeightedVotes(votes, allPlayers);
+            int victimIndex = GetVictimFromVotes(voteResults);
+
+            if (victimIndex == -1)
+            {
+                if (allPlayers[0].role == Role.Werewolf)
+                {
+                    ConsoleDisplay.PrintPlayers(allPlayers, votes);
+                    Console.WriteLine("Choose again among the designated victims :");
+                }
+
+                votes.Clear();
+                List<int> NextVoteTargetsIndex = [];
+                foreach (VoteData vote in voteResults)
+                {
+                    NextVoteTargetsIndex.Add(vote.vote);
+                }
+                foreach (Player werewolf in werewolves)
+                {
+                    votes.Add(werewolf.VoteFromIndex(NextVoteTargetsIndex));
+                }
+                Console.WriteLine();
+
+                voteResults = GetWeightedVotes(votes, allPlayers);
+                victimIndex = GetVictimFromVotes(voteResults);
+                if (victimIndex != -1) { allPlayers[victimIndex].isAlive = false; }
+
+            }
+            else
+            {
+                allPlayers[victimIndex].isAlive = false;
+            }
 
             ConsoleDisplay.Narrrate("The werewolves go back to sleep.\n");
+
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            if (victimIndex > -1) { Console.WriteLine($"[DEBUG] {allPlayers[victimIndex].name} has been eaten.\n"); }
+            Console.ForegroundColor = ConsoleColor.White;
+
             ConsoleDisplay.Next();
 
 
@@ -192,7 +234,7 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                 if (fortuneTeller.isHumain)
                 {
                     ConsoleDisplay.PrintPlayers(allPlayers);
-                    Console.WriteLine("\nChoose someone's card to see :");
+                    Console.WriteLine("Choose someone's card to see :");
                 }
 
                 var result = fortuneTeller.SeeCard(allPlayers);
@@ -205,6 +247,55 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                     target.isDiscovered = true;
                 }
             }
+        }
+
+        private List<VoteData> GetWeightedVotes(List<int> votes, List<Player> targets)
+        {
+            votes.Sort();
+            List<VoteData> weightedVotes = [];
+            foreach (int vote in votes)
+            {
+                if (weightedVotes.Count > 0)
+                {
+                    VoteData lastElement = weightedVotes.Last();
+                    if (lastElement.vote == vote)
+                    {
+                        int i = weightedVotes.Count - 1;
+                        weightedVotes.RemoveAt(i);
+                        lastElement.weight++;
+                        weightedVotes.Add(lastElement);
+                    }
+                    else { weightedVotes.Add(new VoteData(vote, 1)); }
+                }
+                else { weightedVotes.Add(new VoteData(vote, 1)); }
+            }
+            return weightedVotes;
+        }
+
+        private int GetVictimFromVotes(List<VoteData> votes)
+        {
+            int victimIndex;
+            var sort = votes.OrderByDescending(item => item.weight); // sort by weight
+            VoteData[] sortedVotes = sort.ToArray();
+
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            foreach (VoteData vote in sortedVotes)
+            {
+                Console.WriteLine("[DEBUG] " + vote);
+            }
+            Console.WriteLine();
+
+            if (sortedVotes.Length == 1 || sortedVotes[0].weight != sortedVotes[1].weight)
+            {
+                victimIndex = sortedVotes[0].vote;
+                Console.WriteLine($"[DEBUG] the victim will be {allPlayers[victimIndex].name}\n");
+            }
+            else // need another vote
+            {
+                victimIndex = -1;
+            }
+            Console.ForegroundColor = ConsoleColor.White;
+            return victimIndex;
         }
 
         private void Wait(int time = 1000)   // meant to be replaced with something more elegant

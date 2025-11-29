@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using System.Text;
@@ -49,22 +50,19 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
         public static void PrintPlayers(List<Player> Players, bool debug = false)
         {
             int nbColumn = Players.Count;
-
             int columnWidth = 12;
             int wordWidht;
             int comp;
 
             foreach (Player player in Players)
             {
-                if (player.isAlive) { Console.ForegroundColor = ConsoleColor.White; }
-                else { Console.ForegroundColor = ConsoleColor.Gray; }
+                if (!player.isAlive) { Console.ForegroundColor = ConsoleColor.DarkGray; }
 
                 if (player.indexInPlayerList < 10) { Console.Write(" "); } // for alignment
-                Console.ForegroundColor = ConsoleColor.Gray;
+                if (player.isAlive) { Console.ForegroundColor = ConsoleColor.Gray; }
                 Console.Write($" [{player.indexInPlayerList}] ");
-                Console.ForegroundColor = ConsoleColor.White;
+                if (player.isAlive) { Console.ForegroundColor = ConsoleColor.White; }
                 Console.Write($"- {player.name}");
-
                 if (!player.isAlive || debug || player.isDiscovered)
                 {
                     Console.Write(" : ");
@@ -72,7 +70,33 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                 }
                 Console.WriteLine();
             }
+            Console.WriteLine();
             Console.ForegroundColor = ConsoleColor.White;
+        }
+
+        public static void PrintPlayers(List<Player> allPlayers, List<int> IndexesToPrint)
+        {
+            int nbColumn = allPlayers.Count;
+            int columnWidth = 12;
+            int wordWidht;
+            int comp;
+
+            foreach (Player player in allPlayers)
+            {
+                if (IndexesToPrint.Contains(player.indexInPlayerList))
+                {
+                    if (player.indexInPlayerList < 10) { Console.Write(" "); } // for alignment
+                    Console.Write($" [{player.indexInPlayerList}] ");
+                    Console.Write($"- {player.name}");
+                    if (player.isDiscovered)
+                    {
+                        Console.Write(" : ");
+                        player.PrintRole();
+                    }
+                    Console.WriteLine();
+                }
+            }
+            Console.WriteLine();
         }
 
         public static void Narrrate(string text)

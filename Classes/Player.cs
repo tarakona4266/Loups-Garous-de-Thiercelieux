@@ -8,8 +8,6 @@ using System.Threading.Tasks;
 
 namespace Loups_Garous_de_Thiercelieux_console.Classes
 {
-    // IDEA : separate PlayerHumain & PlayerBot in 2 classes with interface IPlayer ?
-    
     public class Player
     {
         public bool isHumain;
@@ -19,6 +17,7 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
         public Role role;
         public int indexInPlayerList;
         private int preferedChoice = -1; // allow the IA to vote for a specific player
+
         public Player(string name, bool isHumain, int index)
         {
             this.isHumain = isHumain;
@@ -164,7 +163,7 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                         else
                         {
                             ConsoleDisplay.ClearLine(2);
-                            Console.WriteLine($"Invalid input : please chose an existing player ID");
+                            Console.WriteLine($"Invalid input : please chose a valid player ID");
                         }
                     }
                     else
@@ -178,7 +177,9 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
             {
                 choice = playersIndex[GlobalRandom.GetRandom(playersIndex.Count)];
             }
-            Console.WriteLine($"{name} as voted {choice}.");
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.WriteLine($"[DEBUG] The {role} {name} has voted {choice}");
+            Console.ForegroundColor = ConsoleColor.White;
             return choice;
         }
 
@@ -230,13 +231,16 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                 {
                     choice = GlobalRandom.GetRandom(players.Count);
                 } while (choice == indexInPlayerList || !players[choice].isAlive || players[choice].isDiscovered);
+
                 if (players[choice].role == Role.Werewolf)
                 {
                     preferedChoice = choice;
                 }
+
                 Console.ForegroundColor = ConsoleColor.DarkGray;
                 Console.WriteLine($"[DEBUG] The {role} {name} as discovered that {players[choice].name} is a {players[choice].role}.\n");
                 Console.ForegroundColor = ConsoleColor.White;
+
                 return (false, choice);
             }
         }
