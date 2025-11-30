@@ -124,7 +124,7 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
             }
 
             List<int> votes = [];
-            foreach (Player werewolf in werewolves)
+            foreach (Player werewolf in werewolves) // first vote
             {
                 votes.Add(werewolf.Vote(allPlayers));
             }
@@ -133,35 +133,20 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
             List<VoteData> voteResults = GetWeightedVotes(votes, allPlayers);
             int victimIndex = GetVictimFromVotes(voteResults);
 
-            if (victimIndex == -1)
+            while (victimIndex == -1) // if voters don't agree
             {
                 if (allPlayers[0].role == Role.Werewolf)
                 {
                     ConsoleDisplay.PrintPlayers(allPlayers, votes);
-                    Console.WriteLine("Choose again among the designated victims :");
+                    Console.WriteLine("The werewolves couldn't agree. Choose again among the designated victims :");
                 }
-
                 votes.Clear();
-                List<int> NextVoteTargetsIndex = [];
-                foreach (VoteData vote in voteResults)
-                {
-                    NextVoteTargetsIndex.Add(vote.vote);
-                }
-                foreach (Player werewolf in werewolves)
-                {
-                    votes.Add(werewolf.VoteFromIndex(NextVoteTargetsIndex));
-                }
+                votes = NewVote(voteResults, werewolves);
                 Console.WriteLine();
-
                 voteResults = GetWeightedVotes(votes, allPlayers);
                 victimIndex = GetVictimFromVotes(voteResults);
-                if (victimIndex != -1) { allPlayers[victimIndex].isAlive = false; }
-
-            }
-            else
-            {
-                allPlayers[victimIndex].isAlive = false;
-            }
+            };
+            allPlayers[victimIndex].isAlive = false; // kill the chosen victim
 
             ConsoleDisplay.Narrrate("The werewolves go back to sleep.\n");
 
@@ -296,6 +281,21 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
             }
             Console.ForegroundColor = ConsoleColor.White;
             return victimIndex;
+        }
+
+        private List<int> NewVote(List<VoteData> previousVote, List<Player> voters)
+        {
+            List<int> NextVoteTargetsIndex = [];
+            List<int> votes = [];
+            foreach (VoteData vote in previousVote) // get the players who got voted
+            {
+                NextVoteTargetsIndex.Add(vote.vote);
+            }
+            foreach (Player player in voters) // vote again
+            {
+                votes.Add(player.VoteFromIndex(NextVoteTargetsIndex));
+            }
+            return votes;
         }
 
         private void Wait(int time = 1000)   // meant to be replaced with something more elegant

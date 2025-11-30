@@ -53,15 +53,21 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
             int columnWidth = 12;
             int wordWidht;
             int comp;
-
+            
             foreach (Player player in Players)
             {
-                if (!player.isAlive) { Console.ForegroundColor = ConsoleColor.DarkGray; }
-
-                if (player.indexInPlayerList < 10) { Console.Write(" "); } // for alignment
-                if (player.isAlive) { Console.ForegroundColor = ConsoleColor.Gray; }
-                Console.Write($" [{player.indexInPlayerList}] ");
-                if (player.isAlive) { Console.ForegroundColor = ConsoleColor.White; }
+                if (player.isAlive)
+                {
+                    if (player.indexInPlayerList < 10) { Console.Write(" "); } // for alignment
+                    Console.ForegroundColor = ConsoleColor.Gray;
+                    Console.Write($" [{player.indexInPlayerList}] ");
+                    Console.ForegroundColor = ConsoleColor.White;
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                    Console.Write(" dead ");
+                }
                 Console.Write($"- {player.name}");
                 if (!player.isAlive || debug || player.isDiscovered)
                 {
