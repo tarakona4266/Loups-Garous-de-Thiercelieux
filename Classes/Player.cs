@@ -102,6 +102,9 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                         Console.WriteLine("Invalid input : pLease enter a number");
                     }
                 }
+                Console.ForegroundColor = ConsoleColor.DarkGray;
+                Console.WriteLine($"[DEBUG] You have voted for {players[choice].role} {players[choice].name} by voting {choice}.");
+                Console.ForegroundColor = ConsoleColor.White;
                 return choice;
             }
             else // AI random vote

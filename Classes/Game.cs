@@ -15,8 +15,9 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
     {
         private int nbPlayer;
         private bool simpleGame;
-        private bool gameEnd;
+        private bool endGame = false;
         private List<Player> allPlayers = [];
+        private int nbWerewolves;
 
         public Game(int nbPlayer, bool simpleGame = false)
         {
@@ -60,13 +61,13 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
             if (simpleGame)
             {
                 List<int> availableRoles = [];
-                int nbWerewolf = (int)Math.Round(allPlayers.Count * 0.2f);  // 20% of werewolves
-                for (int i = 0; i < nbWerewolf; i++)
+                nbWerewolves = (int)Math.Round(allPlayers.Count * 0.2f);  // 20% of werewolves
+                for (int i = 0; i < nbWerewolves; i++)
                 {
                     availableRoles.Add(1);  // werewolves
                 }
                 availableRoles.Add(2);      // Fortune teller
-                int nbOrdinaryTownFolks = allPlayers.Count - nbWerewolf - 1;
+                int nbOrdinaryTownFolks = allPlayers.Count - nbWerewolves - 1;
                 for (int i = 0; i < nbOrdinaryTownFolks; i++)
                 {
                     availableRoles.Add(0);  // ordinary townfolks
@@ -89,6 +90,8 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                 }
             }
 
+            Player fortuneTeller = GetSpecialPlayer(Role.FortuneTeller);
+
             #endregion
 
             #region GAME LOOP
@@ -102,65 +105,109 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
 
             ConsoleDisplay.Next();
 
-            ConsoleDisplay.Narrrate("The night is approaching. Everyone goes to sleep.\n");
-
-
-            // fortune teller
-            ConsoleDisplay.Narrrate("The Fortune Teller awakes.\n");
-            InvokeFortuneTeller();
-            ConsoleDisplay.Narrrate("The Fortune Teller goes back to sleep.\n");
-            ConsoleDisplay.Next();
-
-
-            // werewolves vote
-            ConsoleDisplay.Narrrate("The werewolves are awakening.\n");
-
-            List<Player> werewolves = GetWerewolves();
-
-            if (allPlayers[0].role == Role.Werewolf)
+            // --- loop ---
+            while (!endGame)
             {
-                ConsoleDisplay.PrintPlayers(allPlayers);
-                Console.WriteLine("Choose someone to devour :");
-            }
+                List<int> votes = [];
+                List<VoteData> voteResults;
+                int victimIndex;
 
-            List<int> votes = [];
-            foreach (Player werewolf in werewolves) // first vote
-            {
-                votes.Add(werewolf.Vote(allPlayers));
-            }
-            Console.WriteLine(); // only for pretty debug display
+                ConsoleDisplay.Narrrate("The night is approaching. Everyone goes to sleep.\n");
 
-            List<VoteData> voteResults = GetWeightedVotes(votes, allPlayers);
-            int victimIndex = GetVictimFromVotes(voteResults);
+                // --- fortune teller ---
+                if (fortuneTeller.isAlive)
+                {
+                    ConsoleDisplay.Narrrate("The Fortune Teller awakes.\n");
+                    InvokeFortuneTeller(fortuneTeller);
+                    ConsoleDisplay.Narrrate("The Fortune Teller goes back to sleep.\n");
+                    ConsoleDisplay.Next();
+                }
 
-            while (victimIndex == -1) // if voters don't agree
-            {
+                // --- werewolves vote ---
+
+                CheckForEndGame();
+
+                ConsoleDisplay.Narrrate("The werewolves are awakening.\n");
+
+                List<Player> werewolves = GetWerewolves();
+
                 if (allPlayers[0].role == Role.Werewolf)
                 {
-                    ConsoleDisplay.PrintPlayers(allPlayers, votes);
-                    Console.WriteLine("The werewolves couldn't agree. Choose again among the designated victims :");
+                    ConsoleDisplay.PrintPlayers(allPlayers);
+                    Console.WriteLine("Choose someone to devour :");
                 }
+
+                foreach (Player werewolf in werewolves) // first vote
+                {
+                    if (werewolf.isAlive)
+                    {
+                        votes.Add(werewolf.Vote(allPlayers));
+                    }
+                }
+                Console.WriteLine();
+
+                voteResults = GetWeightedVotes(votes, allPlayers);
+                victimIndex = GetVictimFromVotes(voteResults);
+
+                while (victimIndex == -1) // if voters don't agree
+                {
+                    if (allPlayers[0].role == Role.Werewolf)
+                    {
+                        ConsoleDisplay.PrintPlayers(allPlayers, votes);
+                        Console.WriteLine("The werewolves couldn't agree. Choose again among the designated victims :");
+                    }
+                    votes.Clear();
+                    votes = NewVote(voteResults, werewolves);
+                    Console.WriteLine();
+                    voteResults = GetWeightedVotes(votes, allPlayers);
+                    victimIndex = GetVictimFromVotes(voteResults);
+                }
+                allPlayers[victimIndex].isAlive = false; // kill the chosen victim
+
+                ConsoleDisplay.Narrrate($"The werewolves have chosen to kill {allPlayers[victimIndex].name}\n");
+                ConsoleDisplay.Narrrate("The werewolves go back to sleep.\n");
+                ConsoleDisplay.Next();
+
+
+                // --- town vote ---
+
+                CheckForEndGame();
+
+                ConsoleDisplay.Narrrate("The sun rises. The town wakes up.\n");
+                ConsoleDisplay.Narrrate($"The werewolves have striked tonight. {allPlayers[victimIndex].name} has been eaten.\n");
+                ConsoleDisplay.Narrrate("The townfolks gather at the village square.\n");
+                ConsoleDisplay.Narrrate("In an attempt to get rid of the werewolves, everybody vote for a scapegoat to sacrifice.\n");
+                ConsoleDisplay.PrintPlayers(allPlayers);
+
+                if (allPlayers[0].isAlive) { Console.WriteLine("Who do you think should be sacrificed ?"); }
                 votes.Clear();
-                votes = NewVote(voteResults, werewolves);
+                foreach (Player player in allPlayers)
+                {
+                    if (player.isAlive)
+                    {
+                        votes.Add(player.Vote(allPlayers));
+                    }
+                }
                 Console.WriteLine();
                 voteResults = GetWeightedVotes(votes, allPlayers);
                 victimIndex = GetVictimFromVotes(voteResults);
-            };
-            allPlayers[victimIndex].isAlive = false; // kill the chosen victim
 
-            ConsoleDisplay.Narrrate("The werewolves go back to sleep.\n");
+                if (victimIndex > -1)
+                {
+                    allPlayers[victimIndex].isAlive = false;
+                    ConsoleDisplay.Narrrate($"The scapegoat is {allPlayers[victimIndex].name}. This person was a {allPlayers[victimIndex].role}\n");
+                }
+
+                CheckForEndGame();
+                ConsoleDisplay.Next();
+            }
+            #endregion
+
+            #region ENDGAME
 
             Console.ForegroundColor = ConsoleColor.DarkGray;
-            if (victimIndex > -1) { Console.WriteLine($"[DEBUG] {allPlayers[victimIndex].name} has been eaten.\n"); }
+            Console.WriteLine("[DEBUG] end of the game");
             Console.ForegroundColor = ConsoleColor.White;
-
-            ConsoleDisplay.Next();
-
-
-            // town vote
-            ConsoleDisplay.Narrrate("The sun rises. The town wakes up.\n");
-
-            ConsoleDisplay.PrintPlayers(allPlayers);
 
             #endregion
         }
@@ -211,9 +258,8 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
             return townfolks;
         }
 
-        private void InvokeFortuneTeller()
+        private void InvokeFortuneTeller(Player? fortuneTeller)
         {
-            Player? fortuneTeller = GetSpecialPlayer(Role.FortuneTeller);
             if (fortuneTeller != null)
             {
                 if (fortuneTeller.isHumain)
@@ -298,10 +344,43 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
             return votes;
         }
 
+        private int CheckForEndGame()
+        {
+            int aliveWerewolves = 0;
+            int aliveTownFolks = 0;
+            foreach (Player player in allPlayers)
+            {
+                if (player.isAlive)
+                {
+                    if (player.role == Role.Werewolf)
+                    {
+                        aliveWerewolves++;
+                    }
+                    else
+                    {
+                        aliveTownFolks++;
+                    }
+                }
+            }
+
+            if (aliveTownFolks == 0)
+            {
+                endGame = true;
+                return 0;
+            }
+            else if (aliveWerewolves == 0)
+            {
+                endGame = true;
+                return 1;
+            }
+            else { return 2; }
+        }
+
         private void Wait(int time = 1000)   // meant to be replaced with something more elegant
         {
             Thread.Sleep(time);
         }
+
         #endregion
     }
 }
