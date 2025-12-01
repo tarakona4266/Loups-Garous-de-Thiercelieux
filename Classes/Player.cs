@@ -113,7 +113,7 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                 {
                     if (preferedChoice > -1)
                     {
-                        if (!players[preferedChoice].isAlive)
+                        if (players[preferedChoice].isAlive)
                         {
                             choice = preferedChoice;
                         }
@@ -178,7 +178,22 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
             }
             else // AI random vote
             {
-                choice = playersIndex[GlobalRandom.GetRandom(playersIndex.Count)];
+                if (preferedChoice > -1)
+                {
+                    if (playersIndex.Contains(preferedChoice))
+                    {
+                        choice = preferedChoice;
+                    }
+                    else
+                    {
+                        preferedChoice = -1;
+                        choice = playersIndex[GlobalRandom.GetRandom(playersIndex.Count)];
+                    }
+                }
+                else
+                {
+                    choice = playersIndex[GlobalRandom.GetRandom(playersIndex.Count)];
+                }
             }
             Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.WriteLine($"[DEBUG] The {role} {name} has voted {choice}");
@@ -239,7 +254,7 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                 {
                     preferedChoice = choice;
                     Console.ForegroundColor = ConsoleColor.DarkGray;
-                    Console.WriteLine($"[DEBUG] prefered choice updated");
+                    Console.WriteLine($"[DEBUG] Prefered choice has been updated to {preferedChoice}.");
                     Console.ForegroundColor = ConsoleColor.White;
                 }
                 Console.ForegroundColor = ConsoleColor.DarkGray;

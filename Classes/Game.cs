@@ -191,7 +191,7 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                 #region TOWN_VOTE
                 // --- town vote ---
 
-                CheckForEndGame();
+                CheckForEndGame(); // dosn't work when werewolves win
 
                 ConsoleDisplay.Narrrate("The sun rises. The town wakes up.\n");
                 ConsoleDisplay.Narrrate($"The werewolves have striked tonight. {allPlayers[victimIndex].name} has been eaten.\n");
@@ -225,7 +225,6 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
 
 
             }
-
 
             #region ENDGAME
 
