@@ -105,13 +105,20 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
             Console.WriteLine();
         }
 
-        public static void Narrrate(string text)
+        public static void Narrrate(string text, bool newLine = true)
         {
+            Thread.Sleep(1000); // ugly but will do the job for now
             Console.ForegroundColor = ConsoleColor.Green;
             Console.Write("[Narrator] ");
             Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine(text);
-            Thread.Sleep(1000); // ugly but will do the job for now
+            if (newLine)
+            {
+                Console.WriteLine(text);
+            }
+            else
+            {
+                Console.Write(text);
+            }
         }
 
         public static void Next()

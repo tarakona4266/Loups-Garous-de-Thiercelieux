@@ -20,6 +20,7 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
         private bool endGame = false;
         private List<Player> allPlayers = [];
         private List<int> discoveredByFT = [];
+        private (int aliveWerewolves, int aliveTownfolks) endGameResult;
 
         public Game(int nbPlayer, bool simpleGame = false)
         {
@@ -182,8 +183,11 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
 
                 ConsoleDisplay.Narrrate($"The werewolves have chosen to kill {allPlayers[victimIndex].name}\n");
                 ConsoleDisplay.Narrrate("The werewolves go back to sleep.\n");
-                CheckForEndGame();
+
+                endGameResult = CheckForEndGame();
+                if (endGameResult.aliveWerewolves == 1 && endGameResult.aliveTownfolks == 1) { endGame = true; }
                 ConsoleDisplay.Next();
+                if (endGame) { break; }
 
                 #endregion
 
@@ -223,10 +227,13 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                 }
                 allPlayers[victimIndex].isAlive = false;
                 ConsoleDisplay.Narrrate($"The scapegoat is {allPlayers[victimIndex].name}.");
-                ConsoleDisplay.Narrrate($"This person was a {allPlayers[victimIndex].role}\n");
+                ConsoleDisplay.Narrrate($"This person was a ", false);
+                allPlayers[victimIndex].PrintRole();
+                Console.WriteLine("\n");
 
-                CheckForEndGame();
+                endGameResult = CheckForEndGame();
                 ConsoleDisplay.Next();
+                if (endGame) { break; }
 
                 #endregion
 
@@ -235,8 +242,66 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
             #region ENDGAME
 
             Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.WriteLine("[DEBUG] end of the game");
+            Console.WriteLine("[DEBUG] end of the game\n");
             Console.ForegroundColor = ConsoleColor.White;
+
+            if (endGameResult.aliveWerewolves > 0 && endGameResult.aliveTownfolks == 0) // Werewolves win
+            {
+                if (allPlayers[0].role == Role.Werewolf)
+                {
+                    Console.WriteLine("Congratulation !\n");
+                    Console.WriteLine("The werewolves have slayed all the villagers.\n");
+                    Console.ForegroundColor= ConsoleColor.Blue;
+                    Console.WriteLine("Your team won !");
+                    Console.ForegroundColor= ConsoleColor.White;
+                }
+                else
+                {
+                    Console.WriteLine("Game over !\n");
+                    Console.WriteLine("The werewolves have slayed all the villagers.\n");
+                    Console.ForegroundColor= ConsoleColor.Red;
+                    Console.WriteLine("Your team lost.");
+                    Console.ForegroundColor= ConsoleColor.White;
+                }
+            }
+            else if (endGameResult.aliveTownfolks > 0 && endGameResult.aliveWerewolves == 0) // Townfolks win
+            {
+                if (allPlayers[0].role == Role.Werewolf)
+                {
+                    Console.WriteLine("Game over !\n");
+                    Console.WriteLine("The villagers have slayed the last of your kind.\n");
+                    Console.ForegroundColor= ConsoleColor.Red;
+                    Console.WriteLine("Your team lost.");
+                    Console.ForegroundColor= ConsoleColor.White;
+                }
+                else
+                {
+                    Console.WriteLine("Congratulation !\n");
+                    Console.WriteLine("The villagers have slayed all the werewolves. Millers Hollow is saved.\n");
+                    Console.ForegroundColor= ConsoleColor.Blue;
+                    Console.WriteLine("Your team won !");
+                    Console.ForegroundColor= ConsoleColor.White;
+                }
+            }
+            else if (endGameResult.aliveWerewolves == 1 && endGameResult.aliveTownfolks == 1)
+            {
+                if (allPlayers[0].role == Role.Werewolf)
+                {
+                    Console.WriteLine("Congratulation !\n");
+                    Console.WriteLine("With only a villager left, your kind has seized control of Millers Hollow.\n");
+                    Console.ForegroundColor = ConsoleColor.Blue;
+                    Console.WriteLine("Your team won !");
+                    Console.ForegroundColor = ConsoleColor.White;
+                }
+                else
+                {
+                    Console.WriteLine("Game over !\n");
+                    Console.WriteLine("There is only a villager left to fight the werewolves. Sadly, this is a lost cause.\n");
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Your team lost.");
+                    Console.ForegroundColor = ConsoleColor.White;
+                }
+            }
 
             #endregion
         }
@@ -273,18 +338,6 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                 if (player.role != Role.Werewolf && player.isAlive) { folks.Add(player); }
             }
             return folks;
-        }
-
-        private List<int> GetTownfolksIndex()
-        {
-            List<int> townfolks = [];
-            int i = 0;
-            foreach (Player player in allPlayers)
-            {
-                if (player.role != Role.Werewolf && player.isAlive) { townfolks.Add(i); }
-                i++;
-            }
-            return townfolks;
         }
 
         private void InvokeFortuneTeller(Player? fortuneTeller)
@@ -378,10 +431,11 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
             return votes;
         }
 
-        private int CheckForEndGame()
+        private (int aliveWerewolves, int aliveTownFolks) CheckForEndGame()
         {
             int aliveWerewolves = 0;
             int aliveTownFolks = 0;
+
             foreach (Player player in allPlayers)
             {
                 if (player.isAlive)
@@ -397,17 +451,11 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                 }
             }
 
-            if (aliveTownFolks == 0)
+            if (aliveTownFolks == 0 || aliveWerewolves == 0)
             {
                 endGame = true;
-                return 0;
             }
-            else if (aliveWerewolves == 0)
-            {
-                endGame = true;
-                return 1;
-            }
-            else { return 2; }
+            return (aliveWerewolves, aliveTownFolks);
         }
 
         private void Wait(int time = 1000)   // meant to be replaced with something more elegant
