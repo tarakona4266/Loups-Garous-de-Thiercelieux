@@ -141,8 +141,6 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
 
                 #region WEREWOLVES_VOTE
 
-                // --- werewolves vote ---
-
                 CheckForEndGame();
 
                 ConsoleDisplay.Narrrate("The werewolves are awakening.\n");
@@ -169,7 +167,7 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
 
                 while (victimIndex == -1) // if voters don't agree
                 {
-                    if (allPlayers[0].role == Role.Werewolf)
+                    if (allPlayers[0].role == Role.Werewolf && allPlayers[0].isAlive)
                     {
                         ConsoleDisplay.PrintPlayers(allPlayers, votes);
                         Console.WriteLine("The werewolves couldn't agree. Choose again among the designated victims :");
@@ -184,14 +182,12 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
 
                 ConsoleDisplay.Narrrate($"The werewolves have chosen to kill {allPlayers[victimIndex].name}\n");
                 ConsoleDisplay.Narrrate("The werewolves go back to sleep.\n");
+                CheckForEndGame();
                 ConsoleDisplay.Next();
 
                 #endregion
 
                 #region TOWN_VOTE
-                // --- town vote ---
-
-                CheckForEndGame(); // dosn't work when werewolves win
 
                 ConsoleDisplay.Narrrate("The sun rises. The town wakes up.\n");
                 ConsoleDisplay.Narrrate($"The werewolves have striked tonight. {allPlayers[victimIndex].name} has been eaten.\n");
@@ -212,17 +208,27 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                 voteResults = GetWeightedVotes(votes, allPlayers);
                 victimIndex = GetVictimFromVotes(voteResults);
 
-                if (victimIndex > -1)
+                while (victimIndex == -1) // if voters don't agree
                 {
-                    allPlayers[victimIndex].isAlive = false;
-                    ConsoleDisplay.Narrrate($"The scapegoat is {allPlayers[victimIndex].name}. This person was a {allPlayers[victimIndex].role}\n");
+                    if (allPlayers[0].isAlive)
+                    {
+                        ConsoleDisplay.PrintPlayers(allPlayers, votes);
+                        Console.WriteLine("The villagers couldn't agree. Choose again among the designated victims :");
+                    }
+                    votes.Clear();
+                    votes = NewVote(voteResults, allPlayers);
+                    Console.WriteLine();
+                    voteResults = GetWeightedVotes(votes, allPlayers);
+                    victimIndex = GetVictimFromVotes(voteResults);
                 }
+                allPlayers[victimIndex].isAlive = false;
+                ConsoleDisplay.Narrrate($"The scapegoat is {allPlayers[victimIndex].name}.");
+                ConsoleDisplay.Narrrate($"This person was a {allPlayers[victimIndex].role}\n");
 
                 CheckForEndGame();
                 ConsoleDisplay.Next();
 
                 #endregion
-
 
             }
 
@@ -364,7 +370,10 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
             }
             foreach (Player player in voters) // vote again
             {
-                votes.Add(player.VoteFromIndex(NextVoteTargetsIndex));
+                if (player.isAlive)
+                {
+                    votes.Add(player.VoteFromIndex(NextVoteTargetsIndex));
+                }
             }
             return votes;
         }
