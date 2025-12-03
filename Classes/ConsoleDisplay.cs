@@ -50,7 +50,7 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
 
         }
 
-        public static void PrintPlayers(List<Player> Players, bool debug = false)
+        public static void PrintPlayers(List<Player> Players)
         {
             int nbColumn = Players.Count;
             int columnWidth = 12;
@@ -72,7 +72,7 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                     Console.Write(" dead ");
                 }
                 Console.Write($"- {player.name}");
-                if (!player.isAlive || debug || player.isDiscovered)
+                if (!player.isAlive || printDebug || player.isDiscovered)
                 {
                     Console.Write(" : ");
                     player.PrintRole();
@@ -97,7 +97,7 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                     if (player.indexInPlayerList < 10) { Console.Write(" "); } // for alignment
                     Console.Write($" [{player.indexInPlayerList}] ");
                     Console.Write($"- {player.name}");
-                    if (player.isDiscovered)
+                    if (player.isDiscovered || printDebug)
                     {
                         Console.Write(" : ");
                         player.PrintRole();

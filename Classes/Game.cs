@@ -18,10 +18,17 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
         private int nbWerewolves;
         private bool simpleGame;
         private bool endGame = false;
+        bool humanIsWerewolf = false;
+        private (int aliveWerewolves, int aliveTownfolks) endGameResult;
+
         private List<Player> allPlayers = [];
         private List<int> discoveredByFT = [];
-        private (int aliveWerewolves, int aliveTownfolks) endGameResult;
-        bool humanIsWerewolf = false;
+
+        // for calling special players
+        Player? fortuneTeller;
+        Player? thief;
+        Player? witch;
+        Player? littleGirl;
 
         public Game(int nbPlayer, bool simpleGame = false)
         {
@@ -77,6 +84,7 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                 {
                     availableRoles.Add(0);  // ordinary townfolks
                 }
+
                 foreach (Player player in allPlayers)
                 {
                     int i = GlobalRandom.GetRandom(availableRoles.Count);
@@ -84,7 +92,67 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                     availableRoles.RemoveAt(i);
                 }
             }
-            if (allPlayers[0].role == Role.Werewolf)
+            else
+            {
+                List<int> availableRoles = [];
+                nbWerewolves = (int)Math.Round(allPlayers.Count * 0.2f);  // 20% of werewolves
+                for (int i = 0; i < nbWerewolves; i++)
+                {
+                    availableRoles.Add(1);  // werewolves
+                }
+                availableRoles.Add(2);      // Fortune teller
+                availableRoles.Add(3);      // Hunter
+                availableRoles.Add(4);      // Cupido
+                availableRoles.Add(5);      // Witch
+                availableRoles.Add(6);      // LittleGirl
+                availableRoles.Add(8);      // Thief
+
+                int nbOrdinaryTownFolks = allPlayers.Count - nbWerewolves - 6;
+                for (int i = 0; i < nbOrdinaryTownFolks; i++)
+                {
+                    availableRoles.Add(0);  // ordinary townfolks
+                }
+                foreach (Player player in allPlayers)
+                {
+                    int i = GlobalRandom.GetRandom(availableRoles.Count);
+                    player.role = (Role)availableRoles[i];
+                    availableRoles.RemoveAt(i);
+                }
+            }
+
+            
+
+            #endregion
+
+            // --- Game start ---
+
+            Console.Write("You are a ");
+            allPlayers[0].PrintRole();
+            Console.WriteLine(" !\n");
+            Wait(1000);
+
+            if (Regex.IsMatch(allPlayers[0].name, debugPattern)) // secret debug feature
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("(i) debug mode enabled\n");
+                Console.ForegroundColor = ConsoleColor.White;
+                ConsoleDisplay.printDebug = true;
+            }
+
+            ConsoleDisplay.Next();
+
+            #region THIEF
+
+            if (!simpleGame)
+            {
+                Player thief = GetSpecialPlayer(Role.Thief);
+                InvokeThief(thief);
+                thief = GetSpecialPlayer(Role.Thief);
+            }
+
+            #endregion
+
+            if (allPlayers[0].role == Role.Werewolf) // print the role of all werewolves
             {
                 humanIsWerewolf = true;
                 foreach (Player player in allPlayers)
@@ -96,29 +164,16 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                 }
             }
 
-            Player fortuneTeller = GetSpecialPlayer(Role.FortuneTeller);
-
-            #endregion
-
-
-            // --- Game start ---
-
-            Console.Write("You are a ");
-            allPlayers[0].PrintRole();
-            Console.WriteLine(" !\n");
-            Wait(1000);
-
-            if (Regex.IsMatch(allPlayers[0].name, debugPattern))
+            // get a ref of all special players
+            fortuneTeller = GetSpecialPlayer(Role.FortuneTeller);
+            if (!simpleGame)
             {
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("(i) debug mode enabled\n");
-                Console.ForegroundColor = ConsoleColor.White;
-                ConsoleDisplay.printDebug = true;
+                littleGirl = GetSpecialPlayer(Role.LittleGirl);
+                witch = GetSpecialPlayer(Role.Witch);
             }
 
-            ConsoleDisplay.Next();
+            // --- game loop ---
 
-            // --- loop ---
             while (!endGame)
             {
                 List<int> votes = [];
@@ -334,7 +389,7 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
         }
 
         #region METHODS
-        private Player? GetSpecialPlayer(Role role)
+        private Player GetSpecialPlayer(Role role)
         {
             Player targetPlayer = null;
             foreach (Player player in allPlayers)
@@ -367,31 +422,64 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
             return folks;
         }
 
-        private void InvokeFortuneTeller(Player? fortuneTeller)
+        private void InvokeFortuneTeller(Player fortuneTeller)
         {
-            if (fortuneTeller != null)
+            if (fortuneTeller.isHumain)
             {
-                if (fortuneTeller.isHumain)
-                {
-                    ConsoleDisplay.PrintPlayers(allPlayers);
-                    Console.WriteLine("Choose someone's card to see :");
-                }
-                else
-                {
-                    ConsoleDisplay.Narrrate("No one knows what happens at the fortune teller's house during the night,\nbut everyone agrees that there are secrets that are better left unrevealed.\n");
-                }
+                ConsoleDisplay.PrintPlayers(allPlayers);
+                Console.WriteLine("Choose someone's card to see :");
+            }
+            else
+            {
+                ConsoleDisplay.Narrrate("No one knows what happens at the fortune teller's house during the night,\nbut everyone agrees that there are secrets that are better left unrevealed.\n");
+            }
 
-                var result = fortuneTeller.SeeCard(allPlayers, discoveredByFT);
-                Player target = allPlayers[result.index];
-                discoveredByFT.Add(result.index);
+            var result = fortuneTeller.SeeCard(allPlayers, discoveredByFT);
+            Player target = allPlayers[result.index];
+            discoveredByFT.Add(result.index);
 
-                if (fortuneTeller.isHumain)
+            if (fortuneTeller.isHumain)
+            {
+                Console.Write("This person is a ");
+                target.PrintRole();
+                Console.WriteLine("\n");
+                target.isDiscovered = true;
+            }
+        }
+
+        private void InvokeThief(Player thief)
+        {
+            int choice;
+            if (thief.isHumain)
+            {
+                ConsoleDisplay.PrintPlayers(allPlayers);
+                Console.WriteLine("Whose card do you want to steal ?");
+                choice = thief.Vote(allPlayers);
+            }
+            else
+            {
+                do
                 {
-                    Console.Write("This person is a ");
-                    target.PrintRole();
-                    Console.WriteLine("\n");
-                    target.isDiscovered = true;
-                }
+                    choice = GlobalRandom.GetRandom(nbPlayer);
+                } while (choice == thief.indexInPlayerList);
+            }
+
+            thief.role = allPlayers[choice].role;
+            allPlayers[choice].role = Role.Thief;
+
+            if (allPlayers[choice].isHumain)
+            {
+                Console.WriteLine("Your card has been stolen !\n");
+                Wait();
+                Console.Write("You are now a ");
+                allPlayers[0].PrintRole();
+                Console.WriteLine(" !\n");
+            }
+            ConsoleDisplay.DebugPrint($"{thief.name} have exchanged their card with {thief.role} {allPlayers[choice].name}.\n");
+
+            if (thief.isHumain || allPlayers[choice].isHumain)
+            {
+                ConsoleDisplay.Next();
             }
         }
 

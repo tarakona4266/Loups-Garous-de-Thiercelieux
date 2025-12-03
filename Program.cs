@@ -46,7 +46,7 @@ namespace Loups_Garous_de_Thiercelieux_console
             simpleGame = true;
             Console.WriteLine($"Creating a new game with {nbPlayer} players...\n");
 
-            Game NewGame = new Game(nbPlayer, simpleGame);
+            Game NewGame = new Game(nbPlayer);
             NewGame.Run();
             
         }

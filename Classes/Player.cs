@@ -42,7 +42,7 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                     Console.ForegroundColor = ConsoleColor.Yellow;
                     break;
                 case Role.Witch:
-                    Console.ForegroundColor = ConsoleColor.Blue;
+                    Console.ForegroundColor = ConsoleColor.Green;
                     break;
                 case Role.LittleGirl:
                     Console.ForegroundColor = ConsoleColor.Cyan;
