@@ -5,7 +5,7 @@
 *Current task : implement classic game → add witch*
 
 A text-based, console implementation of the french card game "The Werewolves of Millers Hollow".
-This is a personal project to have more preactive while I learn C#. Once the console version is working nicely, I plan to make a graphical interface in Unity 6.
+This is a personal project to have more practice while I learn C#. Once the console version is working nicely, I plan to make a graphical interface in Unity 6.
 
 ## Rules
 
