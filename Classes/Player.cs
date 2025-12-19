@@ -203,7 +203,7 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
             return choice;
         }
 
-        public (bool displayResult, int index) SeeCard(List<Player> players, List<int> alreadyDiscovered)
+        public (bool displayResult, int index) SeeCard(List<Player> players, List<int> alreadyDiscovered) // to do : move the displayResult in the Game class
         {
             int choice;
             if (isHumain)
@@ -264,5 +264,55 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
             }
         }
 
+        public (int? vote, bool? healing) UsePotion(List<Player> players, int werewolvesVote, int potionsLeft)
+        {
+            //all potions left : 3
+            //only heal left : 2
+            //only kill left : 1
+            if (isHumain)
+            {
+                
+            }
+            else
+            {
+                if (werewolvesVote == indexInPlayerList && potionsLeft > 1) // heal self
+                {
+                    return (indexInPlayerList, true);
+                }
+                if (potionsLeft > 0)
+                {
+                    if (GlobalRandom.GetRandom(0, 3) == 0) // 1/3 probability of using a potion
+                    {
+                        int choice;
+                        switch (potionsLeft)
+                        {
+                            case 1:
+                                do {
+                                    choice = GlobalRandom.GetRandom(players.Count);
+                                } while (choice == indexInPlayerList || !players[choice].isAlive);
+                                return (choice, false);
+                                break;
+
+                            case 2:
+                                return (werewolvesVote, true); //heal victim
+                                break;
+
+                            case 3:
+                                if (GlobalRandom.GetRandom(0,2) == 0)
+                                { return (werewolvesVote, true); } //heal victim
+                                else //kill someone
+                                {
+                                    do {
+                                        choice = GlobalRandom.GetRandom(players.Count);
+                                    } while (choice == indexInPlayerList || !players[choice].isAlive);
+                                    return (choice, false);
+                                }
+                                break;
+                        }
+                    }
+                }
+            }
+            return (null, null);
+        }
     }
 }

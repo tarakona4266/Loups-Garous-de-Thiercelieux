@@ -153,7 +153,7 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
 
             #endregion
 
-            if (allPlayers[0].role == Role.Werewolf) // print the role of all werewolves
+            if (allPlayers[0].role == Role.Werewolf) // print the role of all werewolves if humain is one
             {
                 humanIsWerewolf = true;
                 foreach (Player player in allPlayers)
@@ -202,7 +202,7 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                     if (canInvokeFT)
                     {
                         ConsoleDisplay.Narrate("The Fortune Teller awakes.\n");
-                        InvokeFortuneTeller(fortuneTeller);
+                        InvokeFortuneTeller(fortuneTeller); // To do : Ai avoid voting for discovered villager players
                         ConsoleDisplay.Narrate("The Fortune Teller goes back to sleep.\n");
                         ConsoleDisplay.Next();
                     }
@@ -258,7 +258,6 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                     victimIndex = GetVictimFromVotes(voteResults);
                     if (humanIsWerewolf) { ConsoleDisplay.PrintVotes(voteResults, allPlayers); }
                 }
-                Kill(allPlayers[victimIndex]);
 
                 if (allPlayers[0].role == Role.Werewolf)
                 {
@@ -266,10 +265,21 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                 }
                 ConsoleDisplay.Narrate("Someone screams. The werewolves' hunger is satisfied for this night.\n");
 
+                Kill(allPlayers[victimIndex]);
+
                 endGameResult = CheckForEndGame();
                 if (endGameResult.aliveWerewolves == 1 && endGameResult.aliveTownfolks == 1) { endGame = true; }
                 ConsoleDisplay.Next();
                 if (endGame) { break; }
+
+                #endregion
+
+                #region WITCH
+
+                if (witch != null && witch.isAlive) // if simpleGame, witch is null
+                {
+
+                }
 
                 #endregion
 
@@ -311,11 +321,12 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                     ConsoleDisplay.PrintVotes(voteResults, allPlayers);
                 }
                 Console.WriteLine();
-                Kill(allPlayers[victimIndex]);
                 ConsoleDisplay.Narrate($"The assembly has spoken : the scapegoat is {allPlayers[victimIndex].name}.");
                 ConsoleDisplay.Narrate($"This person was a ", false);
                 allPlayers[victimIndex].PrintRole();
                 Console.WriteLine("\n");
+
+                Kill(allPlayers[victimIndex]);
 
                 endGameResult = CheckForEndGame();
                 ConsoleDisplay.Next();
@@ -508,7 +519,6 @@ namespace Loups_Garous_de_Thiercelieux_console.Classes
                 hunter.isAlive = false;
 
                 Console.WriteLine("\n");
-                ConsoleDisplay.Next();
             }
             else
             {
